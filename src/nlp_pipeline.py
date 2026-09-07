@@ -1,6 +1,6 @@
 """
 NLP Pipeline module for Complaint Theme Mining.
-Handles memory-efficient SBERT embeddings, HDBSCAN clustering,
+Handles memory-efficient SBERT embeddings, HDBSCAN clustering, soft clustering (membership vectors),
 c-TF-IDF keyword extraction, and cluster validation metrics (silhouette score).
 """
 
@@ -63,15 +63,16 @@ def generate_embeddings(
 def perform_clustering(
     embeddings: np.ndarray,
     min_cluster_size: int = config.HDBSCAN_MIN_CLUSTER_SIZE,
-    min_samples: int = config.HDBSCAN_MIN_SAMPLES
+    min_samples: int = config.HDBSCAN_MIN_SAMPLES,
+    reassign_noise: bool = True,
+    noise_threshold: float = 0.10
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Clusters embeddings using HDBSCAN or Sklearn Agglomerative/KMeans fallback.
+    Clusters embeddings using HDBSCAN with soft clustering membership vector reassignment for noise points (-1).
     Returns (cluster_labels, probabilities).
     """
-    logger.info(f"Clustering {len(embeddings)} vectors (min_cluster_size={min_cluster_size})...")
+    logger.info(f"Clustering {len(embeddings)} vectors (min_cluster_size={min_cluster_size}, reassign_noise={reassign_noise})...")
 
-    # If sample size is very small, adjust min_cluster_size
     n_samples = len(embeddings)
     effective_min_cluster_size = max(2, min(min_cluster_size, n_samples // 2 or 2))
     effective_min_samples = max(1, min(min_samples, effective_min_cluster_size))
@@ -82,13 +83,33 @@ def perform_clustering(
             min_cluster_size=effective_min_cluster_size,
             min_samples=effective_min_samples,
             metric=config.HDBSCAN_METRIC,
-            cluster_selection_method=config.HDBSCAN_CLUSTER_SELECTION_METHOD
+            cluster_selection_method=config.HDBSCAN_CLUSTER_SELECTION_METHOD,
+            prediction_data=True
         )
         labels = clusterer.fit_predict(embeddings)
-        probabilities = getattr(clusterer, 'probabilities_', np.ones(n_samples))
+        probabilities = getattr(clusterer, 'probabilities_', np.ones(n_samples)).copy()
+
+        # Perform soft clustering noise reassignment if enabled
+        if reassign_noise and (-1 in labels) and len(set(labels) - {-1}) > 0:
+            try:
+                membership_vectors = hdbscan.all_points_membership_vectors(clusterer)
+                valid_cluster_ids = sorted(list(set(labels) - {-1}))
+
+                for idx in range(n_samples):
+                    if labels[idx] == -1 and idx < len(membership_vectors):
+                        probs = membership_vectors[idx]
+                        max_cluster_idx = np.argmax(probs)
+                        max_prob = probs[max_cluster_idx]
+
+                        if max_prob >= noise_threshold and max_cluster_idx < len(valid_cluster_ids):
+                            labels[idx] = valid_cluster_ids[max_cluster_idx]
+                            probabilities[idx] = max_prob
+            except Exception as e_soft:
+                logger.warning(f"Soft clustering reassignment failed: {e_soft}")
+
         return labels, probabilities
     except Exception as e:
-        logger.warning(f"HDBSCAN clustering failed ({e}). Falling back to KMeans/Threshold clustering.")
+        logger.warning(f"HDBSCAN clustering failed ({e}). Falling back to KMeans clustering.")
         from sklearn.cluster import KMeans
         n_clusters = max(2, min(3, n_samples))
         kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init='auto')
@@ -109,7 +130,6 @@ def extract_cluster_keywords(
     cluster_keywords = {}
     unique_clusters = df[cluster_column].unique()
 
-    # Group text by cluster
     clustered_texts = []
     cluster_ids = []
     for c in sorted(unique_clusters):
@@ -129,7 +149,6 @@ def extract_cluster_keywords(
             row = tfidf_matrix[idx].toarray().flatten()
             top_indices = row.argsort()[-top_n:][::-1]
             keywords = feature_names[top_indices].tolist()
-            # Clean up empty scores if any
             valid_keywords = [kw for kw, score in zip(keywords, row[top_indices]) if score > 0]
             cluster_keywords[int(cluster_id)] = valid_keywords if valid_keywords else ["complaint", "issue"]
     except Exception as e:
@@ -148,7 +167,6 @@ def evaluate_clusters(embeddings: np.ndarray, labels: np.ndarray) -> Dict[str, A
     unique_labels = set(labels)
     n_clusters = len(unique_labels - {-1})
 
-    # Calculate silhouette score if valid
     score = None
     if n_clusters > 1 and n_samples > n_clusters:
         try:
@@ -170,7 +188,8 @@ def evaluate_clusters(embeddings: np.ndarray, labels: np.ndarray) -> Dict[str, A
 
 def run_pipeline(
     data_path: Optional[str] = None,
-    output_path: Optional[str] = None
+    output_path: Optional[str] = None,
+    reassign_noise: bool = True
 ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     """
     Executes the full NLP Complaint Theme Mining pipeline.
@@ -179,7 +198,7 @@ def run_pipeline(
     narratives = df["consumer_complaint_narrative"].tolist()
 
     embeddings = generate_embeddings(narratives)
-    labels, probs = perform_clustering(embeddings)
+    labels, probs = perform_clustering(embeddings, reassign_noise=reassign_noise)
 
     df["cluster"] = labels
     df["cluster_probability"] = probs
