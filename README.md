@@ -38,7 +38,8 @@ The table below highlights performance comparison between baseline approaches an
 | **TF-IDF + K-Means (Baseline)** | 0.028 | 0% | 15 (fixed) | High overlap, rigid cluster partitions, fails on semantic nuance. |
 | **SBERT + UMAP + HDBSCAN (Primary)** | 0.569 | 42.9% | 32 (auto-discovered) | Dense semantic clustering, identifies fine-grained sub-themes. |
 
-### Key Domain Insights & Findings:
+### Key Domain Insights & Findings
+
 - **CFPB Sub-Category Breakdown:** Uncovered ~13 distinct sub-clusters within CFPB’s single broad category *"Problem with a purchase shown on your statement"*.
 - **Credit-Repair Disruption:** Identified standardized and templated dispute letters originating from third-party credit-repair services across consumer credit reporting disputes.
 
@@ -75,6 +76,7 @@ complaint-theme-mining/
 > **Note on Repository Naming:** On GitHub, this repository is hosted under the name `Auto-mated-Metadata-Generator`, which houses the full source code for the **Complaint Theme Mining & Auto-Labeling Pipeline**.
 
 ### 1. Hardware & System Prerequisites
+
 - **Python Version:** Python 3.10, 3.11, or 3.12
 - **System Memory (RAM):**
   - Minimum 8 GB RAM (for running SBERT + HDBSCAN on sample data)
@@ -162,4 +164,5 @@ python3 -m pytest
 ---
 
 ## 📄 License
+
 This project is licensed under the MIT License - see the LICENSE file for details.
