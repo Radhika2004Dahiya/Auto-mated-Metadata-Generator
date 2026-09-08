@@ -73,8 +73,6 @@ complaint-theme-mining/
 
 ## Quick Start
 
-> **Note on Repository Naming:** On GitHub, this repository is hosted under the name `Auto-mated-Metadata-Generator`, which houses the full source code for the **Complaint Theme Mining & Auto-Labeling Pipeline**.
-
 ### 1. Hardware & System Prerequisites
 
 - **Python Version:** Python 3.10, 3.11, or 3.12
@@ -88,8 +86,8 @@ complaint-theme-mining/
 
 ```bash
 # Clone the repository
-git clone https://github.com/Radhika2004Dahiya/Auto-mated-Metadata-Generator.git
-cd Auto-mated-Metadata-Generator
+git clone https://github.com/Radhika2004Dahiya/complaint-theme-mining.git
+cd complaint-theme-mining
 
 # Create virtual environment
 python3 -m venv venv
