@@ -11,14 +11,14 @@
 
 An end-to-end NLP pipeline and interactive Streamlit dashboard designed to analyze 128,000+ Consumer Financial Protection Bureau (CFPB) complaint narratives. The pipeline leverages **SBERT embeddings**, **HDBSCAN clustering**, **c-TF-IDF keyword extraction**, and local **Llama 3.2 (via Ollama)** for automated theme labeling and summary generation.
 
-🌐 **Live Interactive App:** [View Live Streamlit Dashboard](https://complaint-theme-mining-3cstps3mtevfgo8kbtunep.streamlit.app/)
+**Live Interactive App:** [View Live Streamlit Dashboard](https://complaint-theme-mining-3cstps3mtevfgo8kbtunep.streamlit.app/)
 
 ![Streamlit Dashboard](docs/dashboard_preview.png)
 <!-- To update or replace the dashboard preview image, save your dashboard screenshot to docs/dashboard_preview.png -->
 
 ---
 
-## 📌 Features
+## Features
 
 - **Batched SBERT Vectorization:** Efficient dense embedding generation using `all-MiniLM-L6-v2` with batch size controls (`batch_size=64`).
 - **Density-Based Clustering:** HDBSCAN identifies naturally occurring complaint themes without specifying arbitrary cluster counts.
@@ -29,7 +29,7 @@ An end-to-end NLP pipeline and interactive Streamlit dashboard designed to analy
 
 ---
 
-## 📈 Key Results & Model Performance
+## Key Results & Model Performance
 
 The table below highlights performance comparison between baseline approaches and the SBERT + UMAP + HDBSCAN architecture:
 
@@ -45,7 +45,7 @@ The table below highlights performance comparison between baseline approaches an
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 complaint-theme-mining/
@@ -71,7 +71,7 @@ complaint-theme-mining/
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 > **Note on Repository Naming:** On GitHub, this repository is hosted under the name `Auto-mated-Metadata-Generator`, which houses the full source code for the **Complaint Theme Mining & Auto-Labeling Pipeline**.
 
@@ -128,7 +128,7 @@ Open your browser at `http://localhost:8501`.
 
 ---
 
-## 📊 Pipeline Overview
+## Pipeline Overview
 
 ```
 [ Raw Complaints Data ]
@@ -153,7 +153,7 @@ Open your browser at `http://localhost:8501`.
 
 ---
 
-## 🧪 Running Tests
+## Running Tests
 
 Execute the automated pytest suite to verify all pipeline components and fallback logic:
 
@@ -163,6 +163,6 @@ python3 -m pytest
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
