@@ -9,23 +9,11 @@
 
 An end-to-end NLP pipeline and interactive Streamlit dashboard designed to analyze 128,000+ Consumer Financial Protection Bureau (CFPB) complaint narratives. The pipeline leverages **SBERT embeddings**, **HDBSCAN clustering**, **c-TF-IDF keyword extraction**, and local **Llama 3.2 (via Ollama)** for automated theme labeling and summary generation.
 
----
-
-## 📋 Table of Contents
-- [Features](#-features)
-- [Project Architecture & Directory Structure](#-project-architecture--directory-structure)
-- [Hardware & Software Prerequisites](#-hardware--software-prerequisites)
-- [Installation & Setup](#-installation--setup)
-- [Local LLM (Ollama) Configuration](#-local-llm-ollama-configuration)
-- [Running the Pipeline & Dashboard](#-running-the-pipeline--dashboard)
-- [Sampling & Scale Strategy](#-sampling--scale-strategy)
-- [HDBSCAN Soft Clustering & Noise Mitigation](#-hdbscan-soft-clustering--noise-mitigation)
-- [Running Automated Tests](#-running-automated-tests)
-- [License](#-license)
+![Streamlit Dashboard](docs/dashboard_preview.png)
 
 ---
 
-## ✨ Features
+## 📌 Features
 
 - **Batched SBERT Vectorization:** Efficient dense embedding generation using `all-MiniLM-L6-v2` with batch size controls (`batch_size=64`).
 - **Density-Based Clustering:** HDBSCAN identifies naturally occurring complaint themes without specifying arbitrary cluster counts.
@@ -36,7 +24,22 @@ An end-to-end NLP pipeline and interactive Streamlit dashboard designed to analy
 
 ---
 
-## 📁 Project Architecture & Directory Structure
+## 📈 Key Results & Model Performance
+
+The table below highlights performance comparison between baseline approaches and the SBERT + UMAP + HDBSCAN architecture:
+
+| Pipeline Model Strategy | Silhouette Score | Noise Ratio | Cluster Count | Key Characteristics |
+|---|---|---|---|---|
+| **TF-IDF + K-Means (Baseline)** | 0.028 | 0% | 15 (fixed) | High overlap, rigid cluster partitions, fails on semantic nuance. |
+| **SBERT + UMAP + HDBSCAN (Primary)** | 0.569 | 42.9% | 32 (auto-discovered) | Dense semantic clustering, identifies fine-grained sub-themes. |
+
+### Key Domain Insights & Findings:
+- **CFPB Sub-Category Breakdown:** Uncovered ~13 distinct sub-clusters within CFPB’s single broad category *"Problem with a purchase shown on your statement"*.
+- **Credit-Repair Disruption:** Identified standardized and templated dispute letters originating from third-party credit-repair services across consumer credit reporting disputes.
+
+---
+
+## 📁 Project Structure
 
 ```text
 complaint-theme-mining/
@@ -44,6 +47,8 @@ complaint-theme-mining/
 │   ├── raw/                  # Raw complaint CSV files (Git-ignored)
 │   ├── processed/            # Processed outputs with cluster assignments (Git-ignored)
 │   └── sample_data.csv       # Tracked sample dataset (10 records) for demonstration
+├── docs/
+│   └── dashboard_preview.png # Dashboard screenshot placeholder
 ├── src/
 │   ├── __init__.py
 │   ├── config.py             # Global pipeline parameters, model paths & API timeouts
@@ -60,25 +65,22 @@ complaint-theme-mining/
 
 ---
 
-## 💻 Hardware & Software Prerequisites
+## 🚀 Quick Start
 
-- **Operating System:** Linux, macOS, or Windows WSL2
-- **Python:** Python 3.10, 3.11, or 3.12
-- **RAM Requirements:**
+### 1. Hardware & System Prerequisites
+- **Python Version:** Python 3.10, 3.11, or 3.12
+- **System Memory (RAM):**
   - Minimum 8 GB RAM (for running SBERT + HDBSCAN on sample data)
   - Recommended 16 GB+ RAM (for running 30,000+ complaint batches)
-- **Optional GPU / VRAM:** 4 GB+ VRAM (Accelerates SBERT embedding generation and Ollama Llama 3.2 inference)
+- **Ollama Local LLM Prerequisites:**
+  - Recommended 8 GB+ RAM / 4 GB+ VRAM for running `llama3.2` model locally via Ollama.
 
----
-
-## 🚀 Installation & Setup
-
-### 1. Clone Repository & Setup Virtual Environment
+### 2. Clone Repository & Setup Environment
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/complaint-theme-mining.git
-cd complaint-theme-mining
+git clone https://github.com/Radhika2004Dahiya/Auto-mated-Metadata-Generator.git
+cd Auto-mated-Metadata-Generator
 
 # Create virtual environment
 python3 -m venv venv
@@ -88,79 +90,63 @@ python3 -m venv venv
 source venv/bin/activate
 # On Windows:
 # venv\Scripts\activate
-```
 
-### 2. Install Dependencies
-
-```bash
+# Install dependencies
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
----
+### 3. Local LLM (Ollama) Setup
 
-## 🤖 Local LLM (Ollama) Configuration
+Install [Ollama](https://ollama.ai/) and start the local model:
 
-The pipeline integrates with **Ollama** running **Llama 3.2** to automatically generate human-readable titles and summaries for each complaint cluster.
-
-### 1. Install Ollama
-Download and install Ollama from [https://ollama.ai/download](https://ollama.ai/download).
-
-### 2. Pull Llama 3.2 Model
-Pull the lightweight 3B Llama 3.2 model:
 ```bash
+# Pull Llama 3.2 model
 ollama pull llama3.2
-```
 
-### 3. Start Ollama Server
-```bash
+# Start Ollama server
 ollama serve
 ```
 *Note: If Ollama is offline or uninstalled, the pipeline gracefully falls back to generating clean theme titles from c-TF-IDF keywords.*
 
----
+### 4. Run the Streamlit Dashboard
 
-## 📊 Running the Pipeline & Dashboard
-
-### 1. Launch Streamlit Dashboard
-
-Run the Streamlit application:
+Launch the interactive web application:
 ```bash
 streamlit run src/dashboard.py
 ```
 Open your browser at `http://localhost:8501`.
 
-### 2. Dashboard UI Overview
+---
 
-1. **KPI Header Cards:** Displays Total Complaints, Discovered Themes, Noise Points, and Silhouette Validation Score.
-2. **2D Semantic Space Visualization:** Interactive Plotly scatter plot projecting SBERT embeddings into 2D PCA space, color-coded by LLM theme title.
-3. **Cluster Summaries & LLM Labels:** Expandable cards displaying top keywords, executive summaries, and sample sizes per theme.
-4. **Narrative Explorer:** Searchable and filterable table allowing deep inspection of individual consumer complaint narratives.
+## 📊 Pipeline Overview
+
+```
+[ Raw Complaints Data ]
+          │
+          ▼
+ [ SBERT Embedding (all-MiniLM-L6-v2) ]
+          │
+          ▼
+   [ HDBSCAN Clustering ]
+          │
+  ┌───────┴────────┐
+  ▼                ▼
+[ c-TF-IDF ]  [ 2D PCA Mapping ]
+  │                │
+  ▼                │
+[ Ollama Llama 3.2 Labeler ] ◄─ (Fallback to Keywords if offline)
+  │                │
+  └───────┬────────┘
+          ▼
+[ Streamlit Dashboard Visuals ]
+```
 
 ---
 
-## ⚖️ Sampling & Scale Strategy
+## 🧪 Running Tests
 
-Processing full 128,000+ complaint datasets with exact SBERT embeddings and pairwise distance matrices can impose high computational and memory bounds. When sampling down (e.g., to 30,000 rows), sampling bias is mitigated through the following strategies:
-
-1. **Stratified Sampling:** Samples are stratified across `product` and `issue` categories to preserve the original distribution of consumer complaints.
-2. **Temporal Windowing:** Sampling complaints across distinct quarterly/monthly time slices to prevent seasonal bias.
-3. **Chunked Embedding Generation:** Embeddings are generated in mini-batches (`batch_size=64`), keeping peak memory consumption low.
-
----
-
-## 🧩 HDBSCAN Soft Clustering & Noise Mitigation
-
-HDBSCAN often categorizes ambiguous or boundary complaints as noise points (`cluster = -1`). To handle high noise ratios without losing valuable data:
-
-1. **Membership Vectors:** The pipeline utilizes HDBSCAN's `all_points_membership_vectors()` to calculate soft probability distributions across all valid clusters for every data point.
-2. **Noise Reassignment (`reassign_noise=True`):** Unclustered points (`-1`) can be assigned to the cluster with their highest membership probability if it exceeds a confidence threshold (default `0.10`).
-
----
-
-## 🧪 Running Automated Tests
-
-Execute the pytest suite to verify dataset loading, embeddings, HDBSCAN clustering, soft clustering, c-TF-IDF keyword extraction, and LLM fallback logic:
+Execute the automated pytest suite to verify all pipeline components and fallback logic:
 
 ```bash
 python3 -m pytest
