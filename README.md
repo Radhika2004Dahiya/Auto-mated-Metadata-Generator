@@ -1,5 +1,7 @@
 # Complaint Theme Mining & Auto-Labeling Pipeline
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://complaint-theme-mining-3cstps3mtevfgo8kbtunep.streamlit.app/)
+[![Tests](https://img.shields.io/badge/Tests-9%2F9%20Passing-brightgreen.svg)]()
 [![Python 3.12](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.25+-FF4B4B.svg)](https://streamlit.io/)
 [![SBERT](https://img.shields.io/badge/Model-SBERT%20all--MiniLM--L6--v2-green.svg)](https://www.sbert.net/)
@@ -9,7 +11,10 @@
 
 An end-to-end NLP pipeline and interactive Streamlit dashboard designed to analyze 128,000+ Consumer Financial Protection Bureau (CFPB) complaint narratives. The pipeline leverages **SBERT embeddings**, **HDBSCAN clustering**, **c-TF-IDF keyword extraction**, and local **Llama 3.2 (via Ollama)** for automated theme labeling and summary generation.
 
+🌐 **Live Interactive App:** [View Live Streamlit Dashboard](https://complaint-theme-mining-3cstps3mtevfgo8kbtunep.streamlit.app/)
+
 ![Streamlit Dashboard](docs/dashboard_preview.png)
+<!-- To update or replace the dashboard preview image, save your dashboard screenshot to docs/dashboard_preview.png -->
 
 ---
 
@@ -48,7 +53,7 @@ complaint-theme-mining/
 │   ├── processed/            # Processed outputs with cluster assignments (Git-ignored)
 │   └── sample_data.csv       # Tracked sample dataset (10 records) for demonstration
 ├── docs/
-│   └── dashboard_preview.png # Dashboard screenshot placeholder
+│   └── dashboard_preview.png # Dashboard screenshot image
 ├── src/
 │   ├── __init__.py
 │   ├── config.py             # Global pipeline parameters, model paths & API timeouts
@@ -66,6 +71,8 @@ complaint-theme-mining/
 ---
 
 ## 🚀 Quick Start
+
+> **Note on Repository Naming:** On GitHub, this repository is hosted under the name `Auto-mated-Metadata-Generator`, which houses the full source code for the **Complaint Theme Mining & Auto-Labeling Pipeline**.
 
 ### 1. Hardware & System Prerequisites
 - **Python Version:** Python 3.10, 3.11, or 3.12
