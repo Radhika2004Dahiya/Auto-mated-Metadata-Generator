@@ -13,7 +13,7 @@ An end-to-end NLP pipeline and interactive Streamlit dashboard designed to analy
 
 🌐 **Live Interactive App:** [View Live Streamlit Dashboard](https://complaint-theme-mining-3cstps3mtevfgo8kbtunep.streamlit.app/)
 
-![Streamlit Dashboard](docs/dashboard_preview.png)
+<!-- ![Streamlit Dashboard](docs/dashboard_preview.png) -->
 <!-- To update or replace the dashboard preview image, save your dashboard screenshot to docs/dashboard_preview.png -->
 
 ---
